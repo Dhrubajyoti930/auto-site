@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Live GPS Routing</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder@2.4.0/dist/Control.Geocoder.css" />
+    <style>
+        body { margin: 0; padding: 20px; font-family: sans-serif; background:#f9fafb;}
+        #map { height: 500px; width: 100%; border: 1px solid #ccc; margin-top: 10px; border-radius:8px;}
+        .controls { margin-bottom: 10px; }
+        input { padding: 10px; width: 300px; border:1px solid #ccc; border-radius:4px; }
+        button { padding: 10px 15px; cursor: pointer; background:#058240; color:#fff; border:none; border-radius:4px; }
+        .nav-back { margin-bottom:15px; display:inline-block; text-decoration:none; color:#4a5568; font-size:14px; }
+    </style>
+</head>
+<body>
+
+<a href="index.html" class="nav-back">← Back to Home</a>
+<h2>Live Location Routing</h2>
+
+<div class="controls">
+    <input type="text" id="dest-input" placeholder="Enter destination (e.g., Agartala)">
+    <button onclick="setDestination()">Find Route</button>
+</div>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+<script src="https://unpkg.com/leaflet-control-geocoder@2.4.0/dist/Control.Geocoder.js"></script>
+
+<script>
+    const map = L.map('map').setView([20.5937, 78.9629], 5);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    const routingControl = L.Routing.control({
+        waypoints: [],
+        routeWhileDragging: true,
+        addWaypoints: false
+    }).addTo(map);
+
+    map.locate({setView: true, maxZoom: 10});
+
+    let currentStart = null;
+    map.on('locationfound', (e) => {
+        currentStart = e.latlng;
+        L.marker(e.latlng).addTo(map).bindPopup("You are here").openPopup();
+    });
+    map.on('locationerror', () => {
+        alert("Location access denied.");
+    });
+
+    const geocoder = L.Control.Geocoder.nominatim();
+    function setDestination() {
+        const address = document.getElementById('dest-input').value;
+        if (!currentStart) {
+            alert("Waiting for your location...");
+            return;
+        }
+
+        geocoder.geocode(address, (results) => {
+            if (results && results.length > 0) {
+                const destination = results[0].center;
+                routingControl.setWaypoints([currentStart, destination]);
+                map.fitBounds([currentStart, destination]);
+            } else {
+                alert("Could not find that location. Please try a different name.");
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

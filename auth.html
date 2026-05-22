@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Startup Authentication & Profile</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f9fafb; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); width: 100%; max-width: 400px; box-sizing: border-box; }
+        h2, h1 { margin-top: 0; color: #111827; font-size: 24px; margin-bottom: 20px; text-align: center; }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; margin-bottom: 6px; color: #374151; font-size: 14px; font-weight: 500; }
+        input { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; box-sizing: border-box; }
+        input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        button { width: 100%; padding: 10px; background-color: #3c24b6; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 10px; }
+        button:hover { background-color: #2b188a; }
+        .logout-btn { background-color: #ef4444; margin-top: 20px; }
+        .logout-btn:hover { background-color: #dc2626; }
+        .toggle-text { text-align: center; margin-top: 16px; font-size: 14px; color: #6b7280; }
+        .toggle-text a { color: #3c24b6; text-decoration: none; font-weight: 500; }
+        .message { margin-top: 12px; font-size: 14px; text-align: center; padding: 8px; border-radius: 4px; display: none; }
+        .error { color: #b91c1c; background-color: #fef2f2; }
+        .success { color: #15803d; background-color: #f0fdf4; }
+        .avatar-preview-container { display: flex; justify-content: center; margin-bottom: 15px; }
+        .avatar-img { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; background-color: #e5e7eb; border: 2px solid #3c24b6; }
+        #auth-view, #profile-setup-view, #dashboard-view { display: none; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+    <div id="auth-view" class="container">
+        <h2 id="form-title">Sign In to Your Account</h2>
+        <form id="auth-form">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" required placeholder="you@example.com">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required placeholder="••••••••">
+            </div>
+            <button type="submit" id="submit-btn">Sign In</button>
+        </form>
+        <div id="message-box" class="message"></div>
+        <p class="toggle-text" id="toggle-container">
+            Don't have an account? <a href="#" id="toggle-auth">Sign Up</a>
+        </p>
+        <div style="text-align: center; margin-top: 15px;"><a href="index.html" style="font-size:12px; color: #6b7280; text-decoration: none;">← Back to Home</a></div>
+    </div>
+
+    <div id="profile-setup-view" class="container">
+        <h2>Complete Your Profile</h2>
+        <form id="profile-form">
+            <div class="form-group">
+                <label for="full-name">Full Name</label>
+                <input type="text" id="full-name" required placeholder="John Doe">
+            </div>
+            <div class="form-group">
+                <label for="avatar-file">Profile Picture</label>
+                <input type="file" id="avatar-file" accept="image/*" required>
+            </div>
+            <button type="submit" id="save-profile-btn">Save Profile & Continue</button>
+        </form>
+        <div id="profile-message-box" class="message"></div>
+    </div>
+
+    <div id="dashboard-view" class="container">
+        <h1>Welcome Back!</h1>
+        <div class="avatar-preview-container">
+            <img id="dashboard-avatar" class="avatar-img" src="" alt="Profile Picture">
+        </div>
+        <p style="text-align: center; margin: 5px 0; font-size: 18px;"><strong id="dashboard-name"></strong></p>
+        <p style="text-align: center; color: #6b7280; font-size: 14px; margin-top: 0;" id="dashboard-email"></p>
+        <a href="driver_dashboard.html" style="display:block; text-align:center; padding: 10px; background:#f59e0b; color:#fff; border-radius:6px; text-decoration:none; margin-top:15px; font-weight:bold;">Enter Reverse Bidding Matrix</a>
+        <button id="logout-btn" class="logout-btn">Log Out</button>
+    </div>
+
+<script>
+    const SUPABASE_URL = "https://tzdocibsjgrubpxynzar.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_1gz2f5xkD3ygS2a3hJSSVQ_BIX8RxNB";
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const authView = document.getElementById('auth-view');
+    const profileSetupView = document.getElementById('profile-setup-view');
+    const dashboardView = document.getElementById('dashboard-view');
+    const authForm = document.getElementById('auth-form');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const submitBtn = document.getElementById('submit-btn');
+    const formTitle = document.getElementById('form-title');
+    const toggleContainer = document.getElementById('toggle-container');
+    const messageBox = document.getElementById('message-box');
+    const profileForm = document.getElementById('profile-form');
+    const fullNameInput = document.getElementById('full-name');
+    const avatarFileInput = document.getElementById('avatar-file');
+    const profileMessageBox = document.getElementById('profile-message-box');
+    const dashboardAvatar = document.getElementById('dashboard-avatar');
+    const dashboardName = document.getElementById('dashboard-name');
+    const dashboardEmail = document.getElementById('dashboard-email');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    let isSignUpMode = false;
+    let currentUser = null;
+
+    _supabase.auth.onAuthStateChange(async (event, session) => {
+        if (session) {
+            currentUser = session.user;
+            checkProfileRegistration();
+        } else {
+            currentUser = null;
+            showView('auth');
+        }
+    });
+
+    async function checkProfileRegistration() {
+        if (!currentUser) return;
+        const { data: profile, error } = await _supabase
+            .from('profiles')
+            .select('full_name, avatar_url')
+            .eq('id', currentUser.id)
+            .maybeSingle();
+
+        if (profile && profile.full_name) {
+            dashboardName.innerText = profile.full_name;
+            dashboardEmail.innerText = currentUser.email;
+            dashboardAvatar.src = profile.avatar_url || 'https://via.placeholder.com/90';
+            showView('dashboard');
+        } else {
+            showView('profile-setup');
+        }
+    }
+
+    profileForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        setProfileMessage("Uploading image and saving profile...", "success");
+        const file = avatarFileInput.files[0];
+        const fullName = fullNameInput.value;
+        if (!file) {
+            setProfileMessage("Please select a profile file.", "error");
+            return;
+        }
+
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${currentUser.id}-${Date.now()}.${fileExt}`;
+            const { error: uploadError } = await _supabase.storage.from('avatars').upload(fileName, file, { cacheControl: '3600', upsert: true });
+            if (uploadError) throw uploadError;
+
+            const { data: urlData } = _supabase.storage.from('avatars').getPublicUrl(fileName);
+            const { error: profileError } = await _supabase.from('profiles').upsert({
+                id: currentUser.id,
+                full_name: fullName,
+                avatar_url: urlData.publicUrl,
+                updated_at: new Date()
+            }, { onConflict: 'id' });
+            if (profileError) throw profileError;
+
+            await checkProfileRegistration();
+        } catch (error) {
+            setProfileMessage(error.message, 'error');
+        }
+    });
+
+    toggleContainer.addEventListener('click', (e) => {
+        if (e.target.id === 'toggle-auth') {
+            e.preventDefault();
+            isSignUpMode = !isSignUpMode;
+            clearMessage();
+            if (isSignUpMode) {
+                formTitle.innerText = "Create Your Account";
+                submitBtn.innerText = "Sign Up";
+                toggleContainer.innerHTML = 'Already have an account? <a href="#" id="toggle-auth">Sign In</a>';
+            } else {
+                formTitle.innerText = "Sign In to Your Account";
+                submitBtn.innerText = "Sign In";
+                toggleContainer.innerHTML = 'Don\'t have an account? <a href="#" id="toggle-auth">Sign Up</a>';
+            }
+        }
+    });
+
+    authForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        clearMessage();
+        const email = emailInput.value;
+        const password = passwordInput.value;
+
+        if (isSignUpMode) {
+            const { data, error } = await _supabase.auth.signUp({ email, password });
+            if (error) showMessage(error.message, 'error');
+            else if (data.user && data.session === null) showMessage("Success! Check your email inbox.", 'success');
+        } else {
+            const { error } = await _supabase.auth.signInWithPassword({ email, password });
+            if (error) showMessage(error.message, 'error');
+        }
+    });
+
+    logoutBtn.addEventListener('click', async () => await _supabase.auth.signOut());
+
+    function showView(viewName) {
+        authView.style.display = viewName === 'auth' ? 'block' : 'none';
+        profileSetupView.style.display = viewName === 'profile-setup' ? 'block' : 'none';
+        dashboardView.style.display = viewName === 'dashboard' ? 'block' : 'none';
+    }
+
+    function showMessage(text, type) {
+        messageBox.innerText = text;
+        messageBox.className = `message ${type}`;
+        messageBox.style.display = 'block';
+    }
+
+    function setProfileMessage(text, type) {
+        profileMessageBox.innerText = text;
+        profileMessageBox.className = `message ${type}`;
+        profileMessageBox.style.display = 'block';
+    }
+
+    function clearMessage() {
+        messageBox.innerText = '';
+        messageBox.style.display = 'none';
+    }
+</script>
+</body>
+</html>
