@@ -1,26 +1,74 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Live GPS Routing</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Rider | Live Route</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder@2.4.0/dist/Control.Geocoder.css" />
     <style>
-        body { margin: 0; padding: 20px; font-family: sans-serif; background:#f9fafb;}
-        #map { height: 500px; width: 100%; border: 1px solid #ccc; margin-top: 10px; border-radius:8px;}
-        .controls { margin-bottom: 10px; }
-        input { padding: 10px; width: 300px; border:1px solid #ccc; border-radius:4px; }
-        button { padding: 10px 15px; cursor: pointer; background:#058240; color:#fff; border:none; border-radius:4px; }
-        .nav-back { margin-bottom:15px; display:inline-block; text-decoration:none; color:#4a5568; font-size:14px; }
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap');
+        :root { --green: #058240; --yellow: #ffcc00; --ink: #1a202c; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'DM Sans', sans-serif; background: #f7fafc; min-height: 100vh; }
+        .topbar {
+            background: var(--ink);
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.2rem; color: #fff; text-decoration: none; }
+        .logo span { color: var(--yellow); }
+        .back-link { color: #94a3b8; text-decoration: none; font-size: 13px; transition: color 0.2s; }
+        .back-link:hover { color: #fff; }
+        .controls {
+            padding: 16px 20px;
+            background: #fff;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .controls input {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 14px;
+            border: 1.5px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: 'DM Sans', sans-serif;
+            transition: border-color 0.2s;
+        }
+        .controls input:focus { outline: none; border-color: var(--green); }
+        .controls button {
+            padding: 10px 18px;
+            background: var(--green);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            white-space: nowrap;
+            transition: background 0.2s;
+        }
+        .controls button:hover { background: #046330; }
+        #map { height: calc(100vh - 130px); width: 100%; }
     </style>
 </head>
 <body>
 
-<a href="index.html" class="nav-back">← Back to Home</a>
-<h2>Live Location Routing</h2>
+<div class="topbar">
+    <a href="index.html" class="logo">Auto <span>Rider</span></a>
+    <a href="javascript:history.back()" class="back-link">← Go Back</a>
+</div>
 
 <div class="controls">
-    <input type="text" id="dest-input" placeholder="Enter destination (e.g., Agartala)">
+    <input type="text" id="dest-input" placeholder="Enter destination (e.g., Agartala Market)">
     <button onclick="setDestination()">Find Route</button>
 </div>
 
@@ -31,7 +79,8 @@
 <script src="https://unpkg.com/leaflet-control-geocoder@2.4.0/dist/Control.Geocoder.js"></script>
 
 <script>
-    const map = L.map('map').setView([20.5937, 78.9629], 5);
+    // Default to Agartala
+    const map = L.map('map').setView([23.8315, 91.2868], 13);
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
@@ -39,39 +88,52 @@
     const routingControl = L.Routing.control({
         waypoints: [],
         routeWhileDragging: true,
-        addWaypoints: false
+        addWaypoints: false,
+        lineOptions: { styles: [{ color: '#058240', weight: 5 }] }
     }).addTo(map);
 
-    map.locate({setView: true, maxZoom: 10});
-
     let currentStart = null;
+
+    map.locate({ setView: true, maxZoom: 14 });
     map.on('locationfound', (e) => {
         currentStart = e.latlng;
-        L.marker(e.latlng).addTo(map).bindPopup("You are here").openPopup();
+        L.marker(e.latlng, {
+            icon: L.divIcon({ className: '', html: '<div style="background:#058240;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 6px rgba(0,0,0,0.4)"></div>', iconSize: [14,14], iconAnchor: [7,7] })
+        }).addTo(map).bindPopup("You are here").openPopup();
     });
     map.on('locationerror', () => {
-        alert("Location access denied.");
+        // Default to Agartala centre if location denied
+        currentStart = L.latLng(23.8315, 91.2868);
     });
 
     const geocoder = L.Control.Geocoder.nominatim();
-    function setDestination() {
-        const address = document.getElementById('dest-input').value;
-        if (!currentStart) {
-            alert("Waiting for your location...");
-            return;
-        }
 
+    function setDestination() {
+        const address = document.getElementById('dest-input').value.trim();
+        if (!address) return;
+        if (!currentStart) { alert("Waiting for your location..."); return; }
         geocoder.geocode(address, (results) => {
             if (results && results.length > 0) {
-                const destination = results[0].center;
-                routingControl.setWaypoints([currentStart, destination]);
-                map.fitBounds([currentStart, destination]);
+                const dest = results[0].center;
+                routingControl.setWaypoints([currentStart, dest]);
+                map.fitBounds([currentStart, dest], { padding: [40, 40] });
             } else {
-                alert("Could not find that location. Please try a different name.");
+                alert("Could not find that location. Try a different name.");
             }
         });
     }
-</script>
 
+    // Auto-fill destination from URL param (passed from trip.html)
+    const params = new URLSearchParams(window.location.search);
+    const destParam = params.get('dest');
+    if (destParam) {
+        const input = document.getElementById('dest-input');
+        input.value = destParam;
+        // Wait for location, then auto-route
+        map.on('locationfound', () => { setTimeout(setDestination, 500); });
+        // Fallback if location already set
+        setTimeout(() => { if (currentStart) setDestination(); }, 2000);
+    }
+</script>
 </body>
 </html>
