@@ -97,33 +97,47 @@
 
     let currentDriverId = null;
     const auctionState = {}; // { [id]: { timerInterval, hasBid } }
+    let pollInterval = null;
 
     // ── AUTH GATE ──
-    _supabase.auth.onAuthStateChange(async (event, session) => {
+    // Use getSession() first — onAuthStateChange can fire late on static hosts (GitHub Pages)
+    async function init() {
+        const { data: { session } } = await _supabase.auth.getSession();
         if (!session) {
             window.location.href = 'auth.html';
             return;
         }
         currentDriverId = session.user.id;
-        await loadDriverProfile();
+        loadDriverProfile(); // fire-and-forget, non-blocking
         await loadAuctions();
         subscribeToNewAuctions();
+        startPolling(); // fallback in case Realtime misses events
+    }
+
+    // Also handle sign-out mid-session
+    _supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_OUT') window.location.href = 'auth.html';
     });
 
+    init();
+
     async function loadDriverProfile() {
-        const { data } = await _supabase
-            .from('profiles')
-            .select('full_name, avatar_url')
-            .eq('id', currentDriverId)
-            .maybeSingle();
-        if (data) {
-            document.getElementById('driver-name-label').innerText = data.full_name || 'Driver';
-            if (data.avatar_url) document.getElementById('driver-avatar').src = data.avatar_url;
-        }
+        try {
+            const { data } = await _supabase
+                .from('profiles')
+                .select('full_name, avatar_url')
+                .eq('id', currentDriverId)
+                .maybeSingle();
+            if (data) {
+                document.getElementById('driver-name-label').innerText = data.full_name || 'Driver';
+                if (data.avatar_url) document.getElementById('driver-avatar').src = data.avatar_url;
+            }
+        } catch(e) { /* profile load failing should never block the dashboard */ }
     }
 
     // ── LOAD ACTIVE AUCTIONS ──
     async function loadAuctions() {
+        const list = document.getElementById('auctions-list');
         const { data, error } = await _supabase
             .from('auctions')
             .select('*')
@@ -131,18 +145,40 @@
             .gt('expires_at', new Date().toISOString())
             .order('expires_at', { ascending: true });
 
-        const list = document.getElementById('auctions-list');
         if (error) {
-            list.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><p>Could not load auctions.<br><small>${error.message}</small></p></div>`;
+            list.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div>
+                <p>Could not load auctions.</p>
+                <small style="color:#f87171;display:block;margin-top:8px;">${error.message}</small>
+                <small style="color:#64748b;display:block;margin-top:4px;">Code: ${error.code || 'unknown'}</small>
+            </div>`;
+            document.getElementById('status-text').innerText = 'Error — see details below';
             return;
         }
+
         if (!data || data.length === 0) {
             list.innerHTML = `<div class="empty-state"><div class="icon">🛺</div><p>No active ride requests right now.<br>New auctions appear here automatically.</p></div>`;
-            return;
+        } else {
+            // Only clear placeholder, never wipe existing rendered cards
+            const placeholder = list.querySelector('.empty-state, .loading-state');
+            if (placeholder) placeholder.remove();
+            data.forEach(auction => renderAuctionCard(auction));
         }
-        list.innerHTML = '';
-        data.forEach(auction => renderAuctionCard(auction));
-        document.getElementById('status-text').innerText = 'Listening for new ride requests in real time';
+        document.getElementById('status-text').innerText = 'Live — waiting for new ride requests';
+    }
+
+    // ── POLLING FALLBACK (every 8s) ──
+    // Catches any auctions that Realtime missed (WebSocket hiccups on GitHub Pages CDN)
+    function startPolling() {
+        pollInterval = setInterval(async () => {
+            const { data } = await _supabase
+                .from('auctions')
+                .select('*')
+                .eq('status', 'active')
+                .gt('expires_at', new Date().toISOString());
+            if (data) {
+                data.forEach(auction => renderAuctionCard(auction)); // renderAuctionCard skips duplicates
+            }
+        }, 8000);
     }
 
     // ── REALTIME: LISTEN FOR NEW AUCTIONS ──
@@ -158,9 +194,12 @@
                 if (placeholder) placeholder.remove();
                 renderAuctionCard(payload.new);
             })
-            .subscribe((status) => {
+            .subscribe((status, err) => {
+                const statusEl = document.getElementById('status-text');
                 if (status === 'SUBSCRIBED') {
-                    document.getElementById('status-text').innerText = 'Listening for new ride requests in real time';
+                    statusEl.innerText = 'Live — waiting for new ride requests';
+                } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+                    statusEl.innerText = `Realtime: ${status} — polling every 8s as fallback`;
                 }
             });
     }
