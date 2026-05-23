@@ -7,176 +7,62 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap');
         :root {
-            --bg: #0b1329;
-            --card: #1c2541;
-            --card-hover: #223060;
-            --border: #3a506b;
-            --text: #f8fafc;
-            --muted: #94a3b8;
-            --green: #058240;
-            --green-light: #4ade80;
-            --yellow: #ffcc00;
-            --yellow-dark: #d97706;
-            --red: #ef4444;
+            --bg: #0b1329; --card: #1c2541; --border: #3a506b;
+            --text: #f8fafc; --muted: #94a3b8;
+            --green: #058240; --green-light: #4ade80;
+            --yellow: #ffcc00; --yellow-dark: #d97706; --red: #ef4444;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
-
-        /* HEADER */
-        .topbar {
-            background: #111c38;
-            border-bottom: 1px solid var(--border);
-            padding: 14px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
+        .topbar { background: #111c38; border-bottom: 1px solid var(--border); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
         .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.2rem; color: #fff; text-decoration: none; }
         .logo span { color: var(--yellow); }
         .driver-info { display: flex; align-items: center; gap: 10px; }
         .driver-avatar { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 2px solid var(--yellow); }
         .driver-name { font-size: 13px; font-weight: 600; color: var(--muted); }
-        .logout-btn {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--muted);
-            padding: 6px 14px;
-            border-radius: 5px;
-            font-size: 12px;
-            cursor: pointer;
-            font-family: 'DM Sans', sans-serif;
-            transition: all 0.2s;
-        }
+        .logout-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 6px 14px; border-radius: 5px; font-size: 12px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
         .logout-btn:hover { border-color: var(--red); color: var(--red); }
-
-        /* MAIN */
         .main { max-width: 780px; margin: 0 auto; padding: 28px 20px 60px; }
         .page-title { font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 800; margin-bottom: 4px; }
         .page-sub { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
-
-        /* STATUS BAR */
-        .status-bar {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 14px 18px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 24px;
-            font-size: 14px;
-        }
+        .status-bar { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; display: flex; align-items: center; gap: 10px; margin-bottom: 24px; font-size: 14px; }
         .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--green-light); box-shadow: 0 0 8px var(--green-light); flex-shrink: 0; animation: blink 1.5s ease-in-out infinite; }
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-
-        /* AUCTION CARDS */
         #auctions-list { display: flex; flex-direction: column; gap: 16px; }
-
-        .auction-card {
-            background: var(--card);
-            border: 1.5px solid var(--border);
-            border-radius: 12px;
-            padding: 20px;
-            transition: border-color 0.2s, background 0.2s;
-        }
+        .auction-card { background: var(--card); border: 1.5px solid var(--border); border-radius: 12px; padding: 20px; transition: border-color 0.2s, background 0.2s; }
         .auction-card.winning { border-color: var(--green-light); background: rgba(74,222,128,0.05); }
         .auction-card.outbid { border-color: var(--red); background: rgba(239,68,68,0.05); }
-        .auction-card.expired { opacity: 0.5; pointer-events: none; }
-
+        .auction-card.expired { opacity: 0.45; pointer-events: none; }
         .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
         .route { flex: 1; }
         .route-label { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
         .route-value { font-size: 15px; font-weight: 600; }
-        .route-arrow { color: var(--yellow); margin: 0 8px; font-size: 18px; }
-        .timer-badge {
-            background: rgba(255,204,0,0.12);
-            border: 1px solid rgba(255,204,0,0.3);
-            border-radius: 20px;
-            padding: 4px 12px;
-            font-family: 'Syne', sans-serif;
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--yellow);
-            white-space: nowrap;
-            flex-shrink: 0;
-        }
+        .route-arrow { color: var(--yellow); margin: 0 8px; }
+        .timer-badge { background: rgba(255,204,0,0.12); border: 1px solid rgba(255,204,0,0.3); border-radius: 20px; padding: 4px 12px; font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--yellow); white-space: nowrap; flex-shrink: 0; }
         .timer-badge.urgent { color: #f87171; border-color: rgba(248,113,113,0.4); background: rgba(248,113,113,0.08); }
-
-        .card-mid {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 12px 0;
-            border-top: 1px solid rgba(255,255,255,0.06);
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-            margin-bottom: 14px;
-        }
+        .card-mid { display: flex; align-items: center; gap: 16px; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.06); border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 14px; }
         .current-bid-wrap { flex: 1; }
         .current-bid-label { font-size: 11px; color: var(--muted); margin-bottom: 2px; }
-        .current-bid-value {
-            font-family: 'Syne', sans-serif;
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: var(--green-light);
-            line-height: 1;
-        }
+        .current-bid-value { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; color: var(--green-light); line-height: 1; }
         .current-bid-value.no-bids { color: var(--muted); font-size: 1.2rem; }
-        .bid-status-badge {
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-        }
+        .bid-status-badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; }
         .badge-winning { background: rgba(74,222,128,0.15); color: var(--green-light); }
         .badge-outbid { background: rgba(239,68,68,0.15); color: #f87171; }
         .badge-none { background: rgba(148,163,184,0.1); color: var(--muted); }
-
-        /* BID INPUT */
         .bid-row { display: flex; gap: 10px; align-items: center; }
         .bid-input-wrap { position: relative; flex: 1; }
-        .bid-currency { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-weight: 600; }
-        .bid-input {
-            width: 100%;
-            padding: 11px 12px 11px 28px;
-            background: var(--bg);
-            border: 1.5px solid var(--border);
-            color: var(--text);
-            border-radius: 6px;
-            font-size: 15px;
-            font-family: 'DM Sans', sans-serif;
-            transition: border-color 0.2s;
-        }
+        .bid-currency { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-weight: 600; pointer-events: none; }
+        .bid-input { width: 100%; padding: 11px 12px 11px 28px; background: var(--bg); border: 1.5px solid var(--border); color: var(--text); border-radius: 6px; font-size: 15px; font-family: 'DM Sans', sans-serif; transition: border-color 0.2s; }
         .bid-input:focus { outline: none; border-color: var(--yellow); }
-        .bid-btn {
-            padding: 11px 20px;
-            background: var(--yellow);
-            color: #0b1329;
-            border: none;
-            border-radius: 6px;
-            font-weight: 700;
-            font-size: 14px;
-            cursor: pointer;
-            font-family: 'DM Sans', sans-serif;
-            transition: background 0.2s;
-            white-space: nowrap;
-        }
+        .bid-btn { padding: 11px 20px; background: var(--yellow); color: #0b1329; border: none; border-radius: 6px; font-weight: 700; font-size: 14px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.2s; white-space: nowrap; }
         .bid-btn:hover { background: var(--yellow-dark); color: #fff; }
         .bid-btn:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
-
         .bid-hint { font-size: 12px; color: var(--muted); margin-top: 7px; }
-
-        /* Empty / Loading states */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--muted);
-        }
+        .bid-hint.success { color: var(--green-light); }
+        .bid-hint.error { color: #f87171; }
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
         .empty-state .icon { font-size: 2.5rem; margin-bottom: 12px; }
         .empty-state p { font-size: 14px; }
-
         .loading-state { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 14px; }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -186,7 +72,7 @@
 <div class="topbar">
     <a href="index.html" class="logo">Auto <span>Rider</span></a>
     <div class="driver-info">
-        <img id="driver-avatar" class="driver-avatar" src="https://via.placeholder.com/34" alt="Avatar">
+        <img id="driver-avatar" class="driver-avatar" src="https://placehold.co/34x34/1c2541/ffcc00?text=D" alt="Avatar">
         <span class="driver-name" id="driver-name-label">Loading...</span>
         <button class="logout-btn" onclick="signOut()">Sign Out</button>
     </div>
@@ -195,12 +81,10 @@
 <div class="main">
     <div class="page-title">Ride Auctions</div>
     <div class="page-sub">Place the lowest bid to win the ride. Timer is live — bid fast.</div>
-
     <div class="status-bar">
         <div class="dot"></div>
-        <span>Listening for new ride requests in real time</span>
+        <span id="status-text">Connecting to live auctions...</span>
     </div>
-
     <div id="auctions-list">
         <div class="loading-state">Loading active auctions...</div>
     </div>
@@ -212,8 +96,7 @@
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let currentDriverId = null;
-    let currentDriverName = '';
-    const auctionState = {};
+    const auctionState = {}; // { [id]: { timerInterval, hasBid } }
 
     // ── AUTH GATE ──
     _supabase.auth.onAuthStateChange(async (event, session) => {
@@ -228,22 +111,18 @@
     });
 
     async function loadDriverProfile() {
-        const { data, error } = await _supabase
+        const { data } = await _supabase
             .from('profiles')
             .select('full_name, avatar_url')
             .eq('id', currentDriverId)
             .maybeSingle();
-            
-        if (error) console.error("Error loading profile:", error);
-
         if (data) {
-            currentDriverName = data.full_name || 'Driver';
-            document.getElementById('driver-name-label').innerText = currentDriverName;
+            document.getElementById('driver-name-label').innerText = data.full_name || 'Driver';
             if (data.avatar_url) document.getElementById('driver-avatar').src = data.avatar_url;
         }
     }
 
-    // ── LOAD ALL ACTIVE AUCTIONS ──
+    // ── LOAD ACTIVE AUCTIONS ──
     async function loadAuctions() {
         const { data, error } = await _supabase
             .from('auctions')
@@ -253,73 +132,70 @@
             .order('expires_at', { ascending: true });
 
         const list = document.getElementById('auctions-list');
-        
         if (error) {
-            console.error("Supabase Load Auctions Error:", error);
-            list.innerHTML = `<div class="empty-state"><p style="color:var(--red);">Error loading auctions. Check console (F12).</p></div>`;
+            list.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><p>Could not load auctions.<br><small>${error.message}</small></p></div>`;
             return;
         }
-
         if (!data || data.length === 0) {
             list.innerHTML = `<div class="empty-state"><div class="icon">🛺</div><p>No active ride requests right now.<br>New auctions appear here automatically.</p></div>`;
             return;
         }
-        
         list.innerHTML = '';
         data.forEach(auction => renderAuctionCard(auction));
+        document.getElementById('status-text').innerText = 'Listening for new ride requests in real time';
     }
 
-    // ── REALTIME: NEW AUCTIONS ──
+    // ── REALTIME: LISTEN FOR NEW AUCTIONS ──
     function subscribeToNewAuctions() {
-        _supabase.channel('auctions-new')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'auctions' }, (payload) => {
-                // FIX: Ensure payload actually contains a new row before processing
-                if (payload.new) {
-                    console.log("New auction received via Realtime!", payload.new);
-                    const list = document.getElementById('auctions-list');
-                    const empty = list.querySelector('.empty-state, .loading-state');
-                    if (empty) empty.remove();
-                    
-                    renderAuctionCard(payload.new);
-                    subscribeToAuctionUpdates(payload.new.id);
-                }
+        _supabase.channel('dashboard-inserts')
+            .on('postgres_changes', {
+                event: 'INSERT',
+                schema: 'public',
+                table: 'auctions'
+            }, (payload) => {
+                const list = document.getElementById('auctions-list');
+                const placeholder = list.querySelector('.empty-state, .loading-state');
+                if (placeholder) placeholder.remove();
+                renderAuctionCard(payload.new);
             })
             .subscribe((status) => {
-                if (status === 'SUBSCRIBED') console.log('Successfully subscribed to new auctions channel.');
-                if (status === 'CHANNEL_ERROR') console.error('Failed to subscribe to new auctions channel.');
+                if (status === 'SUBSCRIBED') {
+                    document.getElementById('status-text').innerText = 'Listening for new ride requests in real time';
+                }
             });
     }
 
     // ── RENDER ONE AUCTION CARD ──
     function renderAuctionCard(auction) {
         const id = auction.id;
+        if (document.getElementById(`card-${id}`)) return; // already rendered
 
-        if (document.getElementById(`card-${id}`)) return;
+        // Skip if already expired
+        if (new Date(auction.expires_at) <= new Date()) return;
+
+        const hasBid = Number(auction.current_lowest_bid) < 999999;
+        const amWinning = auction.lowest_bidder_id === currentDriverId;
+        const suggestedBid = hasBid ? Math.max(1, Number(auction.current_lowest_bid) - 1) : 80;
 
         const card = document.createElement('div');
-        card.className = 'auction-card';
+        card.className = `auction-card${amWinning ? ' winning' : ''}`;
         card.id = `card-${id}`;
-
-        // FIX: Strict null checking logic matching the passenger side.
-        const hasBid = auction.current_lowest_bid !== null && auction.current_lowest_bid !== undefined && auction.current_lowest_bid < 999999;
-        const amWinning = auction.lowest_bidder_id === currentDriverId;
-
         card.innerHTML = `
             <div class="card-top">
                 <div class="route">
                     <div class="route-label">Route</div>
-                    <div style="display:flex; align-items:center; flex-wrap:wrap; gap:4px;">
-                        <span class="route-value">${escHtml(auction.pickup || 'Unknown')}</span>
+                    <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;">
+                        <span class="route-value">${esc(auction.pickup || 'Unknown')}</span>
                         <span class="route-arrow">→</span>
-                        <span class="route-value">${escHtml(auction.destination || 'Unknown')}</span>
+                        <span class="route-value">${esc(auction.destination || 'Unknown')}</span>
                     </div>
                 </div>
-                <div class="timer-badge" id="timer-${id}">60s</div>
+                <div class="timer-badge" id="timer-${id}">—</div>
             </div>
             <div class="card-mid">
                 <div class="current-bid-wrap">
                     <div class="current-bid-label">Current Lowest Bid</div>
-                    <div class="current-bid-value ${hasBid ? '' : 'no-bids'}" id="bid-val-${id}">
+                    <div class="current-bid-value${hasBid ? '' : ' no-bids'}" id="bid-val-${id}">
                         ${hasBid ? '₹' + Number(auction.current_lowest_bid).toFixed(0) : 'No bids yet'}
                     </div>
                 </div>
@@ -330,11 +206,12 @@
             <div class="bid-row">
                 <div class="bid-input-wrap">
                     <span class="bid-currency">₹</span>
-                    <input type="number" class="bid-input" id="bid-input-${id}" placeholder="${hasBid ? Number(auction.current_lowest_bid).toFixed(0) - 1 : '80'}" min="1">
+                    <input type="number" class="bid-input" id="bid-input-${id}"
+                        placeholder="${suggestedBid}" min="1" step="1">
                 </div>
                 <button class="bid-btn" id="bid-btn-${id}" onclick="submitBid('${id}')">Bid</button>
             </div>
-            <div class="bid-hint" id="bid-hint-${id}">Enter a bid lower than the current offer to win.</div>
+            <div class="bid-hint" id="bid-hint-${id}">Enter an amount lower than the current offer to win.</div>
         `;
 
         document.getElementById('auctions-list').prepend(card);
@@ -342,169 +219,192 @@
         subscribeToAuctionUpdates(id);
     }
 
-    // ── PER-CARD TIMER ──
+    // ── DB-ANCHORED TIMER PER CARD ──
     function startCardTimer(id, expiresAt) {
-        const expiry = new Date(expiresAt).getTime();
         auctionState[id] = auctionState[id] || {};
-        auctionState[id].timerInterval = setInterval(() => {
+        const expiry = new Date(expiresAt).getTime();
+
+        auctionState[id].timerInterval = setInterval(async () => {
             const remaining = Math.max(0, Math.floor((expiry - Date.now()) / 1000));
             const timerEl = document.getElementById(`timer-${id}`);
-            const btnEl = document.getElementById(`bid-btn-${id}`);
-            const inputEl = document.getElementById(`bid-input-${id}`);
-            
             if (!timerEl) { clearInterval(auctionState[id].timerInterval); return; }
 
             timerEl.innerText = remaining + 's';
             if (remaining <= 10) timerEl.className = 'timer-badge urgent';
+            else timerEl.className = 'timer-badge';
 
             if (remaining <= 0) {
                 clearInterval(auctionState[id].timerInterval);
-                closeAuctionCard(id);
-                if (btnEl) { btnEl.disabled = true; btnEl.innerText = 'Closed'; }
-                if (inputEl) inputEl.disabled = true;
-                markAuctionClosed(id);
+                disableCard(id);
+                // Only the first driver whose timer fires updates the DB (use .eq status filter to prevent races)
+                await tryCloseAuction(id);
             }
-        }, 1000);
+        }, 500); // 500ms for snappier countdown
     }
 
-    // ── REALTIME: BID UPDATES ON A SPECIFIC AUCTION ──
+    // ── CLOSE AUCTION (race-safe: only succeeds once) ──
+    async function tryCloseAuction(id) {
+        const { error } = await _supabase
+            .from('auctions')
+            .update({ status: 'closed' })
+            .eq('id', id)
+            .eq('status', 'active'); // Only one driver's update will win
+
+        // Regardless of who closed it, fetch final state and check if we won
+        const { data } = await _supabase.from('auctions').select('*').eq('id', id).single();
+        if (data && data.lowest_bidder_id === currentDriverId) {
+            redirectToTrip(data);
+        }
+    }
+
+    // ── REALTIME: BID UPDATES FOR A SPECIFIC AUCTION ──
     function subscribeToAuctionUpdates(id) {
-        _supabase.channel(`auction-driver-${id}`)
+        _supabase.channel(`card-updates-${id}`)
             .on('postgres_changes', {
-                event: 'UPDATE', schema: 'public', table: 'auctions', filter: `id=eq.${id}`
+                event: 'UPDATE',
+                schema: 'public',
+                table: 'auctions',
+                filter: `id=eq.${id}`
             }, (payload) => {
-                if(payload.new) updateCardBidState(id, payload.new);
+                applyBidUpdate(id, payload.new);
             })
             .subscribe();
     }
 
-    function updateCardBidState(id, auction) {
-        const bidValEl = document.getElementById(`bid-val-${id}`);
-        const statusEl = document.getElementById(`status-badge-${id}`);
-        const hintEl = document.getElementById(`bid-hint-${id}`);
-        const inputEl = document.getElementById(`bid-input-${id}`);
-        const card = document.getElementById(`card-${id}`);
+    function applyBidUpdate(id, auction) {
+        const bidValEl  = document.getElementById(`bid-val-${id}`);
+        const statusEl  = document.getElementById(`status-badge-${id}`);
+        const hintEl    = document.getElementById(`bid-hint-${id}`);
+        const inputEl   = document.getElementById(`bid-input-${id}`);
+        const card      = document.getElementById(`card-${id}`);
         if (!bidValEl) return;
 
-        // FIX: Replaced broken Javascript null comparison
-        const hasBid = auction.current_lowest_bid !== null && auction.current_lowest_bid !== undefined && auction.current_lowest_bid < 999999;
+        const hasBid    = Number(auction.current_lowest_bid) < 999999;
         const amWinning = auction.lowest_bidder_id === currentDriverId;
-        const amOutbid = !amWinning && auctionState[id] && auctionState[id].hasBid;
+        const amOutbid  = !amWinning && auctionState[id] && auctionState[id].hasBid;
 
-        bidValEl.className = `current-bid-value ${hasBid ? '' : 'no-bids'}`;
-        bidValEl.innerText = hasBid ? '₹' + Number(auction.current_lowest_bid).toFixed(0) : 'No bids yet';
+        // Update bid display
+        bidValEl.className = `current-bid-value${hasBid ? '' : ' no-bids'}`;
+        bidValEl.innerText  = hasBid ? '₹' + Number(auction.current_lowest_bid).toFixed(0) : 'No bids yet';
 
+        // Update status badge + card border
         if (amWinning) {
-            statusEl.className = 'bid-status-badge badge-winning';
-            statusEl.innerText = '🏆 Winning';
-            card.className = 'auction-card winning';
-            if (hintEl) hintEl.innerText = "You have the lowest bid! Hold tight.";
+            statusEl.className  = 'bid-status-badge badge-winning';
+            statusEl.innerText  = '🏆 Winning';
+            card.className      = 'auction-card winning';
+            setHint(id, 'You have the lowest bid! Hold tight.', 'success');
         } else if (amOutbid) {
-            statusEl.className = 'bid-status-badge badge-outbid';
-            statusEl.innerText = '⚡ Outbid';
-            card.className = 'auction-card outbid';
-            if (hintEl) hintEl.innerText = "You've been outbid! Enter a lower amount.";
+            statusEl.className  = 'bid-status-badge badge-outbid';
+            statusEl.innerText  = '⚡ Outbid';
+            card.className      = 'auction-card outbid';
+            setHint(id, "You've been outbid! Enter a lower amount.", 'error');
         }
 
-        if (hasBid && inputEl && !inputEl.disabled) {
+        // Suggest next bid
+        if (hasBid && inputEl) {
             inputEl.placeholder = Math.max(1, Number(auction.current_lowest_bid) - 1).toString();
         }
 
+        // Handle close via Realtime (faster than timer for the winner)
         if (auction.status === 'closed') {
-            closeAuctionCard(id);
-            if (amWinning) {
-                const params = new URLSearchParams({
-                    pickup: auction.pickup || '',
-                    destination: auction.destination || '',
-                    fare: Number(auction.current_lowest_bid).toFixed(0),
-                    auction_id: id
-                });
-                window.location.href = `trip.html?${params.toString()}`;
-            }
+            disableCard(id);
+            if (amWinning) redirectToTrip(auction);
         }
     }
 
-    function closeAuctionCard(id) {
-        const card = document.getElementById(`card-${id}`);
-        if (card) card.classList.add('expired');
+    function disableCard(id) {
+        const card    = document.getElementById(`card-${id}`);
+        const btnEl   = document.getElementById(`bid-btn-${id}`);
+        const inputEl = document.getElementById(`bid-input-${id}`);
+        const timerEl = document.getElementById(`timer-${id}`);
+        if (card)    card.classList.add('expired');
+        if (btnEl)   { btnEl.disabled = true; btnEl.innerText = 'Closed'; }
+        if (inputEl) inputEl.disabled = true;
+        if (timerEl) timerEl.innerText = '0s';
         if (auctionState[id] && auctionState[id].timerInterval) {
             clearInterval(auctionState[id].timerInterval);
         }
     }
 
-    async function markAuctionClosed(id) {
-        const { error } = await _supabase.from('auctions')
-            .update({ status: 'closed' })
-            .eq('id', id)
-            .eq('status', 'active'); 
-            
-        if(error) console.error("Error closing auction:", error);
-
-        const { data } = await _supabase.from('auctions').select('*').eq('id', id).single();
-        if (data && data.lowest_bidder_id === currentDriverId) {
-            const params = new URLSearchParams({
-                pickup: data.pickup || '',
-                destination: data.destination || '',
-                fare: Number(data.current_lowest_bid).toFixed(0),
-                auction_id: id
-            });
-            window.location.href = `trip.html?${params.toString()}`;
-        }
+    function redirectToTrip(auction) {
+        const params = new URLSearchParams({
+            pickup:      auction.pickup      || '',
+            destination: auction.destination || '',
+            fare:        Number(auction.current_lowest_bid).toFixed(0),
+            auction_id:  auction.id
+        });
+        window.location.href = `trip.html?${params.toString()}`;
     }
 
+    // ── SUBMIT BID ──
     async function submitBid(auctionId) {
         const inputEl = document.getElementById(`bid-input-${auctionId}`);
-        const hintEl = document.getElementById(`bid-hint-${auctionId}`);
+        const btnEl   = document.getElementById(`bid-btn-${auctionId}`);
         const bidAmount = parseFloat(inputEl.value);
 
         if (isNaN(bidAmount) || bidAmount <= 0) {
-            if (hintEl) hintEl.innerText = '⚠ Please enter a valid bid amount.';
-            return;
+            setHint(auctionId, '⚠ Enter a valid amount.', 'error'); return;
         }
 
-        const { data: current, error: fetchErr } = await _supabase
-            .from('auctions').select('current_lowest_bid, expires_at, status').eq('id', auctionId).single();
+        btnEl.disabled = true;
+        btnEl.innerText = '...';
 
-        if (fetchErr || !current || current.status !== 'active') {
-            if (hintEl) hintEl.innerText = '⚠ This auction has already closed.';
-            return;
+        // Fetch fresh auction state
+        const { data: current, error: fetchErr } = await _supabase
+            .from('auctions')
+            .select('current_lowest_bid, expires_at, status')
+            .eq('id', auctionId)
+            .single();
+
+        if (fetchErr || !current) {
+            setHint(auctionId, '⚠ Could not verify auction state.', 'error');
+            btnEl.disabled = false; btnEl.innerText = 'Bid'; return;
+        }
+        if (current.status !== 'active') {
+            setHint(auctionId, '⚠ This auction has already closed.', 'error');
+            btnEl.disabled = false; btnEl.innerText = 'Bid'; return;
         }
         if (new Date(current.expires_at) < new Date()) {
-            if (hintEl) hintEl.innerText = '⚠ This auction has expired.';
-            return;
+            setHint(auctionId, '⚠ This auction has expired.', 'error');
+            btnEl.disabled = false; btnEl.innerText = 'Bid'; return;
         }
-        
-        // Handle logic for the very first bid 
-        const currentLowest = current.current_lowest_bid !== null ? current.current_lowest_bid : 999999;
-        
-        if (bidAmount >= currentLowest) {
-            if (hintEl) hintEl.innerText = `⚠ Your bid must be lower than ₹${Number(currentLowest).toFixed(0)}.`;
-            return;
+        if (bidAmount >= Number(current.current_lowest_bid)) {
+            setHint(auctionId, `⚠ Must be lower than ₹${Number(current.current_lowest_bid).toFixed(0)}.`, 'error');
+            btnEl.disabled = false; btnEl.innerText = 'Bid'; return;
         }
 
         const { error } = await _supabase.from('auctions').update({
             current_lowest_bid: bidAmount,
-            lowest_bidder_id: currentDriverId
+            lowest_bidder_id:   currentDriverId
         }).eq('id', auctionId);
 
+        btnEl.disabled = false;
+        btnEl.innerText = 'Bid';
+
         if (error) {
-            console.error("Bid Submission Error:", error);
-            if (hintEl) hintEl.innerText = '⚠ Bid rejected — a lower bid may already exist.';
+            setHint(auctionId, '⚠ Bid rejected — a lower bid exists.', 'error');
         } else {
             auctionState[auctionId] = auctionState[auctionId] || {};
             auctionState[auctionId].hasBid = true;
             inputEl.value = '';
-            if (hintEl) hintEl.innerText = '✓ Bid placed! You are currently winning.';
+            setHint(auctionId, '✓ Bid placed! You are currently winning.', 'success');
         }
+    }
+
+    function setHint(id, text, type) {
+        const el = document.getElementById(`bid-hint-${id}`);
+        if (!el) return;
+        el.innerText = text;
+        el.className = `bid-hint${type ? ' ' + type : ''}`;
+    }
+
+    function esc(str) {
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
 
     async function signOut() {
         await _supabase.auth.signOut();
         window.location.href = 'auth.html';
-    }
-
-    function escHtml(str) {
-        return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
 </script>
 </body>
