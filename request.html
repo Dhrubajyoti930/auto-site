@@ -7,122 +7,43 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap');
         :root {
-            --bg: #0b1329;
-            --card: #1c2541;
-            --border: #3a506b;
-            --text: #f8fafc;
-            --muted: #94a3b8;
-            --green: #058240;
-            --yellow: #ffcc00;
-            --yellow-dark: #d97706;
+            --bg: #0b1329; --card: #1c2541; --border: #3a506b;
+            --text: #f8fafc; --muted: #94a3b8;
+            --green: #058240; --yellow: #ffcc00; --yellow-dark: #d97706;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            background: var(--bg);
-            color: var(--text);
-            font-family: 'DM Sans', sans-serif;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 40px 20px;
-        }
-        .logo {
-            font-family: 'Syne', sans-serif;
-            font-weight: 800;
-            font-size: 1.3rem;
-            color: #fff;
-            text-decoration: none;
-            margin-bottom: 32px;
-        }
+        body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; }
+        .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.3rem; color: #fff; text-decoration: none; margin-bottom: 32px; }
         .logo span { color: var(--yellow); }
-        .card {
-            background: var(--card);
-            padding: 32px;
-            border-radius: 12px;
-            width: 100%;
-            max-width: 420px;
-            border: 1px solid var(--border);
-        }
-        h2 {
-            font-family: 'Syne', sans-serif;
-            color: var(--yellow);
-            margin-bottom: 22px;
-            font-size: 1.5rem;
-        }
+        .card { background: var(--card); padding: 32px; border-radius: 12px; width: 100%; max-width: 420px; border: 1px solid var(--border); }
+        h2 { font-family: 'Syne', sans-serif; color: var(--yellow); margin-bottom: 22px; font-size: 1.5rem; }
         .form-group { margin-bottom: 16px; }
         label { display: block; margin-bottom: 6px; font-size: 13px; color: var(--muted); font-weight: 600; }
-        input {
-            width: 100%;
-            padding: 12px;
-            background: var(--bg);
-            border: 1.5px solid var(--border);
-            color: var(--text);
-            border-radius: 6px;
-            font-size: 14px;
-            font-family: 'DM Sans', sans-serif;
-            transition: border-color 0.2s;
-        }
+        input { width: 100%; padding: 12px; background: var(--bg); border: 1.5px solid var(--border); color: var(--text); border-radius: 6px; font-size: 14px; font-family: 'DM Sans', sans-serif; transition: border-color 0.2s; }
         input:focus { outline: none; border-color: var(--yellow); }
-        button {
-            width: 100%;
-            padding: 14px;
-            background: var(--yellow);
-            border: none;
-            border-radius: 6px;
-            font-weight: 700;
-            font-size: 15px;
-            cursor: pointer;
-            margin-top: 10px;
-            color: #0b1329;
-            font-family: 'DM Sans', sans-serif;
-            transition: background 0.2s;
-        }
+        button { width: 100%; padding: 14px; background: var(--yellow); border: none; border-radius: 6px; font-weight: 700; font-size: 15px; cursor: pointer; margin-top: 10px; color: #0b1329; font-family: 'DM Sans', sans-serif; transition: background 0.2s; }
         button:hover { background: var(--yellow-dark); color: #fff; }
+        button:disabled { background: #3a506b; color: #94a3b8; cursor: not-allowed; }
         .back-link { margin-top: 20px; font-size: 13px; color: var(--muted); text-decoration: none; }
         .back-link:hover { color: #fff; }
-
-        /* Waiting screen */
         .waiting-screen { text-align: center; }
         .waiting-screen h2 { color: var(--yellow); }
         .trip-meta { background: rgba(255,255,255,0.05); border-radius: 8px; padding: 14px 16px; margin: 16px 0; text-align: left; font-size: 14px; }
         .trip-meta span { color: var(--muted); font-size: 12px; display: block; margin-bottom: 2px; }
         .trip-meta strong { font-size: 15px; }
-        .bid-display {
-            margin: 22px 0 8px;
-            padding: 20px;
-            background: rgba(5,130,64,0.12);
-            border: 1.5px solid var(--green);
-            border-radius: 10px;
-            text-align: center;
-        }
+        .bid-display { margin: 22px 0 8px; padding: 20px; background: rgba(5,130,64,0.12); border: 1.5px solid var(--green); border-radius: 10px; text-align: center; }
         .bid-label { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
-        .bid-amount {
-            font-family: 'Syne', sans-serif;
-            font-size: 2.8rem;
-            font-weight: 800;
-            color: #4ade80;
-            line-height: 1;
-            transition: all 0.3s ease;
-        }
+        .bid-amount { font-family: 'Syne', sans-serif; font-size: 2.8rem; font-weight: 800; color: #4ade80; line-height: 1; transition: all 0.3s ease; }
         .bid-driver { font-size: 12px; color: var(--muted); margin-top: 6px; }
         .timer-wrap { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 16px; font-size: 13px; color: var(--muted); }
         .timer { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--yellow); min-width: 40px; }
         .pulse { animation: pulse 1s ease-in-out infinite; }
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-        .no-bids { color: var(--muted); font-size: 14px; margin-top: 8px; }
-
-        /* Won screen */
         .won-screen { text-align: center; }
         .won-screen h2 { color: #4ade80; }
-        .won-amount {
-            font-family: 'Syne', sans-serif;
-            font-size: 3rem;
-            font-weight: 800;
-            color: #4ade80;
-            margin: 12px 0 4px;
-        }
+        .won-amount { font-family: 'Syne', sans-serif; font-size: 3rem; font-weight: 800; color: #4ade80; margin: 12px 0 4px; }
         .won-driver { color: var(--muted); font-size: 14px; }
+        .err { color: #f87171; font-size: 13px; margin-top: 10px; text-align: center; display: none; }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -140,7 +61,8 @@
         <label>Destination</label>
         <input type="text" id="destination" placeholder="Enter destination">
     </div>
-    <button onclick="publishRide()">Request Ride</button>
+    <button id="request-btn" onclick="publishRide()">Request Ride</button>
+    <div class="err" id="form-err"></div>
 </div>
 
 <div class="card waiting-screen" id="waiting-screen" style="display:none;">
@@ -152,7 +74,7 @@
     <div class="bid-display">
         <div class="bid-label">Current Best Offer</div>
         <div class="bid-amount" id="live-bid">—</div>
-        <div class="bid-driver" id="live-driver">No bids yet</div>
+        <div class="bid-driver" id="live-driver">No bids yet — waiting for drivers...</div>
     </div>
     <div class="timer-wrap">
         <span class="pulse">⏱</span>
@@ -170,6 +92,7 @@
     <div class="won-amount" id="result-amount"></div>
     <div class="won-driver" id="result-driver"></div>
     <p style="margin-top:18px; font-size:13px; color:#94a3b8;">Your driver is on the way. Please be at the pickup point.</p>
+    <button onclick="location.href='index.html'" style="margin-top:20px; background:#3a506b; color:#fff;">Back to Home</button>
 </div>
 
 <a href="index.html" class="back-link">← Back to Home</a>
@@ -180,71 +103,90 @@
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let timerInterval = null;
-
-    // FIX 1: Universal UUID Generator. Prevents crashes on local file:// paths.
-    function generateUUID() {
-        if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-            return crypto.randomUUID();
-        }
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-            const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        });
-    }
+    let currentAuctionId = null;
+    let realtimeChannel = null;
+    let resultShown = false;
 
     async function publishRide() {
         const pickup = document.getElementById('pickup').value.trim();
         const destination = document.getElementById('destination').value.trim();
-        if (!pickup || !destination) { alert("Please enter both locations."); return; }
+        const btn = document.getElementById('request-btn');
+        const errEl = document.getElementById('form-err');
+        errEl.style.display = 'none';
 
-        const auctionId = generateUUID();
+        if (!pickup || !destination) {
+            errEl.innerText = 'Please enter both pickup and destination.';
+            errEl.style.display = 'block';
+            return;
+        }
 
-        // Subscribe to this specific auction BEFORE inserting
-        _supabase.channel(`auction-passenger-${auctionId}`)
+        btn.disabled = true;
+        btn.innerText = 'Creating auction...';
+
+        const auctionId = crypto.randomUUID();
+        currentAuctionId = auctionId;
+
+        // ── Step 1: Subscribe BEFORE inserting so we never miss an update ──
+        realtimeChannel = _supabase.channel(`req-${auctionId}`)
             .on('postgres_changes', {
                 event: 'UPDATE',
                 schema: 'public',
                 table: 'auctions',
                 filter: `id=eq.${auctionId}`
             }, (payload) => {
-                if (payload.new) handleBidUpdate(payload.new);
+                handleBidUpdate(payload.new);
             })
-            .subscribe();
+            .subscribe((status) => {
+                // Only insert once the channel is confirmed SUBSCRIBED
+                if (status === 'SUBSCRIBED') {
+                    insertAuction(auctionId, pickup, destination);
+                }
+            });
+    }
 
-        // Insert the auction
+    async function insertAuction(auctionId, pickup, destination) {
+        const errEl = document.getElementById('form-err');
+        const btn = document.getElementById('request-btn');
+
         const expiresAt = new Date(Date.now() + 60000).toISOString();
+
         const { error } = await _supabase.from('auctions').insert([{
             id: auctionId,
             ride_request_id: auctionId,
             pickup: pickup,
             destination: destination,
             expires_at: expiresAt,
-            status: 'active'
+            status: 'active',
+            current_lowest_bid: 999999
         }]);
 
-        if (error) { 
-            console.error("Supabase Error:", error);
-            alert("Failed to create ride request: " + error.message); 
-            return; 
+        if (error) {
+            errEl.innerText = 'Could not create ride: ' + error.message;
+            errEl.style.display = 'block';
+            btn.disabled = false;
+            btn.innerText = 'Request Ride';
+            if (realtimeChannel) _supabase.removeChannel(realtimeChannel);
+            return;
         }
 
-        // Show waiting screen
+        // Store for result screen (survives timer expiry fetch)
+        sessionStorage.setItem('ar_pickup', pickup);
+        sessionStorage.setItem('ar_dest', destination);
+
+        // Switch to waiting screen
         document.getElementById('form-screen').style.display = 'none';
         document.getElementById('waiting-screen').style.display = 'block';
         document.getElementById('w-pickup').innerText = pickup;
         document.getElementById('w-dest').innerText = destination;
 
-        // Store for result screen
-        sessionStorage.setItem('ar_pickup', pickup);
-        sessionStorage.setItem('ar_dest', destination);
-        sessionStorage.setItem('ar_auction_id', auctionId);
-
         startTimer(expiresAt, auctionId);
     }
 
     function handleBidUpdate(auction) {
-        // FIX 2: Strict null checking. 'null < 999999' is technically 'true' in JS, causing false positives.
-        if (auction.current_lowest_bid !== null && auction.current_lowest_bid !== undefined && auction.current_lowest_bid < 999999) {
+        // Guard: don't update if result already shown
+        if (resultShown) return;
+
+        if (auction.current_lowest_bid && Number(auction.current_lowest_bid) < 999999) {
             document.getElementById('live-bid').innerText = '₹' + Number(auction.current_lowest_bid).toFixed(0);
             document.getElementById('live-driver').innerText = 'A driver is winning — bidding continues...';
         }
@@ -257,31 +199,36 @@
         const expiryTime = new Date(expiresAt).getTime();
         timerInterval = setInterval(async () => {
             const remaining = Math.max(0, Math.floor((expiryTime - Date.now()) / 1000));
-            document.getElementById('timer-display').innerText = remaining + 's';
-            
+            const timerEl = document.getElementById('timer-display');
+            if (timerEl) timerEl.innerText = remaining + 's';
+
             if (remaining <= 0) {
                 clearInterval(timerInterval);
-                // Fetch final state
-                const { data, error } = await _supabase
+                if (resultShown) return;
+                // Fetch final state from DB
+                const { data } = await _supabase
                     .from('auctions')
                     .select('*')
                     .eq('id', auctionId)
                     .single();
-                
                 if (data) showResult(data);
             }
         }, 1000);
     }
 
     function showResult(auction) {
+        if (resultShown) return;
+        resultShown = true;
         clearInterval(timerInterval);
+        if (realtimeChannel) _supabase.removeChannel(realtimeChannel);
+
         document.getElementById('waiting-screen').style.display = 'none';
         document.getElementById('result-screen').style.display = 'block';
         document.getElementById('r-pickup').innerText = sessionStorage.getItem('ar_pickup') || '';
         document.getElementById('r-dest').innerText = sessionStorage.getItem('ar_dest') || '';
 
-        // FIX 3: Strict null checking applied here as well
-        if (auction.lowest_bidder_id && auction.current_lowest_bid !== null && auction.current_lowest_bid < 999999) {
+        const hasWinner = auction.lowest_bidder_id && Number(auction.current_lowest_bid) < 999999;
+        if (hasWinner) {
             document.getElementById('result-title').innerText = '🎉 Driver Found!';
             document.getElementById('result-amount').innerText = '₹' + Number(auction.current_lowest_bid).toFixed(0);
             document.getElementById('result-driver').innerText = 'A driver accepted your ride at this fare.';
