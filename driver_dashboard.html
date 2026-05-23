@@ -213,7 +213,6 @@
 
     let currentDriverId = null;
     let currentDriverName = '';
-    // Track per-auction: { myBid, timerInterval }
     const auctionState = {};
 
     // ── AUTH GATE ──
@@ -229,11 +228,14 @@
     });
 
     async function loadDriverProfile() {
-        const { data } = await _supabase
+        const { data, error } = await _supabase
             .from('profiles')
             .select('full_name, avatar_url')
             .eq('id', currentDriverId)
             .maybeSingle();
+            
+        if (error) console.error("Error loading profile:", error);
+
         if (data) {
             currentDriverName = data.full_name || 'Driver';
             document.getElementById('driver-name-label').innerText = currentDriverName;
@@ -251,10 +253,18 @@
             .order('expires_at', { ascending: true });
 
         const list = document.getElementById('auctions-list');
-        if (error || !data || data.length === 0) {
+        
+        if (error) {
+            console.error("Supabase Load Auctions Error:", error);
+            list.innerHTML = `<div class="empty-state"><p style="color:var(--red);">Error loading auctions. Check console (F12).</p></div>`;
+            return;
+        }
+
+        if (!data || data.length === 0) {
             list.innerHTML = `<div class="empty-state"><div class="icon">🛺</div><p>No active ride requests right now.<br>New auctions appear here automatically.</p></div>`;
             return;
         }
+        
         list.innerHTML = '';
         data.forEach(auction => renderAuctionCard(auction));
     }
@@ -263,31 +273,35 @@
     function subscribeToNewAuctions() {
         _supabase.channel('auctions-new')
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'auctions' }, (payload) => {
-                const list = document.getElementById('auctions-list');
-                // Remove empty state if present
-                const empty = list.querySelector('.empty-state, .loading-state');
-                if (empty) empty.remove();
-                renderAuctionCard(payload.new);
-                subscribeToAuctionUpdates(payload.new.id);
+                // FIX: Ensure payload actually contains a new row before processing
+                if (payload.new) {
+                    console.log("New auction received via Realtime!", payload.new);
+                    const list = document.getElementById('auctions-list');
+                    const empty = list.querySelector('.empty-state, .loading-state');
+                    if (empty) empty.remove();
+                    
+                    renderAuctionCard(payload.new);
+                    subscribeToAuctionUpdates(payload.new.id);
+                }
             })
-            .subscribe();
-
-        // Also subscribe to updates for already-loaded auctions
-        // Done per-card in renderAuctionCard
+            .subscribe((status) => {
+                if (status === 'SUBSCRIBED') console.log('Successfully subscribed to new auctions channel.');
+                if (status === 'CHANNEL_ERROR') console.error('Failed to subscribe to new auctions channel.');
+            });
     }
 
     // ── RENDER ONE AUCTION CARD ──
     function renderAuctionCard(auction) {
         const id = auction.id;
 
-        // Don't re-render if card already exists
         if (document.getElementById(`card-${id}`)) return;
 
         const card = document.createElement('div');
         card.className = 'auction-card';
         card.id = `card-${id}`;
 
-        const hasBid = auction.current_lowest_bid && auction.current_lowest_bid < 999999;
+        // FIX: Strict null checking logic matching the passenger side.
+        const hasBid = auction.current_lowest_bid !== null && auction.current_lowest_bid !== undefined && auction.current_lowest_bid < 999999;
         const amWinning = auction.lowest_bidder_id === currentDriverId;
 
         card.innerHTML = `
@@ -328,7 +342,7 @@
         subscribeToAuctionUpdates(id);
     }
 
-    // ── PER-CARD TIMER (DB-anchored) ──
+    // ── PER-CARD TIMER ──
     function startCardTimer(id, expiresAt) {
         const expiry = new Date(expiresAt).getTime();
         auctionState[id] = auctionState[id] || {};
@@ -337,6 +351,7 @@
             const timerEl = document.getElementById(`timer-${id}`);
             const btnEl = document.getElementById(`bid-btn-${id}`);
             const inputEl = document.getElementById(`bid-input-${id}`);
+            
             if (!timerEl) { clearInterval(auctionState[id].timerInterval); return; }
 
             timerEl.innerText = remaining + 's';
@@ -358,7 +373,7 @@
             .on('postgres_changes', {
                 event: 'UPDATE', schema: 'public', table: 'auctions', filter: `id=eq.${id}`
             }, (payload) => {
-                updateCardBidState(id, payload.new);
+                if(payload.new) updateCardBidState(id, payload.new);
             })
             .subscribe();
     }
@@ -371,7 +386,8 @@
         const card = document.getElementById(`card-${id}`);
         if (!bidValEl) return;
 
-        const hasBid = auction.current_lowest_bid < 999999;
+        // FIX: Replaced broken Javascript null comparison
+        const hasBid = auction.current_lowest_bid !== null && auction.current_lowest_bid !== undefined && auction.current_lowest_bid < 999999;
         const amWinning = auction.lowest_bidder_id === currentDriverId;
         const amOutbid = !amWinning && auctionState[id] && auctionState[id].hasBid;
 
@@ -390,15 +406,13 @@
             if (hintEl) hintEl.innerText = "You've been outbid! Enter a lower amount.";
         }
 
-        // Update placeholder to suggest a lower value
-        if (hasBid && inputEl) {
+        if (hasBid && inputEl && !inputEl.disabled) {
             inputEl.placeholder = Math.max(1, Number(auction.current_lowest_bid) - 1).toString();
         }
 
         if (auction.status === 'closed') {
             closeAuctionCard(id);
             if (amWinning) {
-                // Redirect winner to trip page
                 const params = new URLSearchParams({
                     pickup: auction.pickup || '',
                     destination: auction.destination || '',
@@ -418,14 +432,14 @@
         }
     }
 
-    // ── MARK CLOSED IN DB (called when client timer hits 0) ──
     async function markAuctionClosed(id) {
-        await _supabase.from('auctions')
+        const { error } = await _supabase.from('auctions')
             .update({ status: 'closed' })
             .eq('id', id)
-            .eq('status', 'active'); // Only update if still active (prevent race)
+            .eq('status', 'active'); 
+            
+        if(error) console.error("Error closing auction:", error);
 
-        // If we won, redirect
         const { data } = await _supabase.from('auctions').select('*').eq('id', id).single();
         if (data && data.lowest_bidder_id === currentDriverId) {
             const params = new URLSearchParams({
@@ -438,7 +452,6 @@
         }
     }
 
-    // ── SUBMIT BID ──
     async function submitBid(auctionId) {
         const inputEl = document.getElementById(`bid-input-${auctionId}`);
         const hintEl = document.getElementById(`bid-hint-${auctionId}`);
@@ -449,11 +462,10 @@
             return;
         }
 
-        // Fetch current state to validate client-side before DB call
-        const { data: current } = await _supabase
+        const { data: current, error: fetchErr } = await _supabase
             .from('auctions').select('current_lowest_bid, expires_at, status').eq('id', auctionId).single();
 
-        if (!current || current.status !== 'active') {
+        if (fetchErr || !current || current.status !== 'active') {
             if (hintEl) hintEl.innerText = '⚠ This auction has already closed.';
             return;
         }
@@ -461,8 +473,12 @@
             if (hintEl) hintEl.innerText = '⚠ This auction has expired.';
             return;
         }
-        if (bidAmount >= current.current_lowest_bid) {
-            if (hintEl) hintEl.innerText = `⚠ Your bid must be lower than ₹${Number(current.current_lowest_bid).toFixed(0)}.`;
+        
+        // Handle logic for the very first bid 
+        const currentLowest = current.current_lowest_bid !== null ? current.current_lowest_bid : 999999;
+        
+        if (bidAmount >= currentLowest) {
+            if (hintEl) hintEl.innerText = `⚠ Your bid must be lower than ₹${Number(currentLowest).toFixed(0)}.`;
             return;
         }
 
@@ -472,6 +488,7 @@
         }).eq('id', auctionId);
 
         if (error) {
+            console.error("Bid Submission Error:", error);
             if (hintEl) hintEl.innerText = '⚠ Bid rejected — a lower bid may already exist.';
         } else {
             auctionState[auctionId] = auctionState[auctionId] || {};
