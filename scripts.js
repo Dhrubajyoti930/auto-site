@@ -4,10 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
             const target = document.querySelector(this.getAttribute('href'));
-            if(target) {
-                target.scrollIntoView({ behavior: 'smooth' });
-            }
+            if (target) target.scrollIntoView({ behavior: 'smooth' });
         });
     });
-    console.log("Auto Rider MVP scripts loaded successfully.");
 });
