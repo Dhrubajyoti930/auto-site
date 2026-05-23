@@ -3,315 +3,491 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auto Driver Reverse Bidding Matrix</title>
+    <title>Auto Rider | Driver Dashboard</title>
     <style>
-        :root { --bg-color: #0b1329; --card-bg: #1c2541; --text-main: #f8fafc; --text-muted: #94a3b8; --primary: #f59e0b; --primary-hover: #d97706; --success: #10b981; --danger: #ef4444; --border: #3a506b; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
-        header { background-color: #0b1329; border-bottom: 2px solid var(--border); padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
-        .trip-details h2 { font-size: 1.3rem; color: var(--primary); display: flex; align-items: center; gap: 8px; }
-        .trip-route { font-size: 0.9rem; color: var(--text-muted); margin-top: 4px; }
-        .home-link { font-size: 0.85rem; color: var(--text-muted); text-decoration: none; margin-right: 15px; }
-        .home-link:hover { color: #fff; }
-        .auction-info { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; }
-        .live-badge { background: rgba(245, 158, 11, 0.2); color: var(--primary); padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; border: 1px solid var(--primary); }
-        .live-badge.ended { background: rgba(16, 185, 129, 0.2); color: var(--success); border-color: var(--success); }
-        .global-price { font-size: 1.6rem; font-weight: 800; color: var(--success); }
-        .global-timer { font-size: 1.2rem; font-weight: bold; color: var(--danger); }
-        .grid-container { flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; padding: 16px; background-color: #020c1b; }
-        .user-square { background-color: var(--card-bg); border: 2px solid var(--border); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; position: relative; transition: border-color 0.2s, box-shadow 0.2s; }
-        .user-square.lowest-bidder-card { border-color: var(--success); box-shadow: inset 0 0 10px rgba(16, 185, 129, 0.2); }
-        .user-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 12px; }
-        .user-name { font-weight: bold; font-size: 1.1rem; color: #fff; }
-        .user-badge { font-size: 0.75rem; background: #0b1329; padding: 4px 10px; border-radius: 6px; font-weight: bold; color: var(--text-muted); }
-        .user-body { display: flex; flex-direction: column; gap: 12px; flex: 1; }
-        .control-panel { display: flex; flex-direction: column; gap: 10px; }
-        .bid-input-wrap { display: flex; gap: 8px; }
-        input[type="number"] { flex: 1; padding: 10px; background: #0b1329; border: 1px solid var(--border); color: #fff; border-radius: 6px; font-size: 1rem; outline: none; }
-        input:focus { border-color: var(--primary); }
-        button { padding: 10px 16px; background-color: var(--primary); color: #0b1329; border: none; border-radius: 6px; font-size: 0.95rem; cursor: pointer; font-weight: bold; }
-        button:hover { background-color: var(--primary-hover); }
-        button:disabled { background-color: #0b1329; color: var(--text-muted); cursor: not-allowed; border: 1px solid var(--border); }
-        .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .quick-btn { background: #2a3447; font-size: 0.85rem; padding: 8px; color: #fff; }
-        .quick-btn:hover { background: #3a4761; }
-        .ticker-container { background: #0b1329; border: 1px solid var(--border); border-radius: 6px; padding: 12px; font-size: 0.85rem; min-height: 60px; display: flex; align-items: center; justify-content: center; text-align: center; }
-        .ticker-message { color: var(--text-main); line-height: 1.4; word-break: break-word; transition: color 0.2s ease; }
-        .ticker-message.highlight { color: var(--primary); text-shadow: 0 0 0.6px var(--primary), 0 0 0.6px var(--primary); }
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap');
+        :root {
+            --bg: #0b1329;
+            --card: #1c2541;
+            --card-hover: #223060;
+            --border: #3a506b;
+            --text: #f8fafc;
+            --muted: #94a3b8;
+            --green: #058240;
+            --green-light: #4ade80;
+            --yellow: #ffcc00;
+            --yellow-dark: #d97706;
+            --red: #ef4444;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+
+        /* HEADER */
+        .topbar {
+            background: #111c38;
+            border-bottom: 1px solid var(--border);
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.2rem; color: #fff; text-decoration: none; }
+        .logo span { color: var(--yellow); }
+        .driver-info { display: flex; align-items: center; gap: 10px; }
+        .driver-avatar { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 2px solid var(--yellow); }
+        .driver-name { font-size: 13px; font-weight: 600; color: var(--muted); }
+        .logout-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            padding: 6px 14px;
+            border-radius: 5px;
+            font-size: 12px;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.2s;
+        }
+        .logout-btn:hover { border-color: var(--red); color: var(--red); }
+
+        /* MAIN */
+        .main { max-width: 780px; margin: 0 auto; padding: 28px 20px 60px; }
+        .page-title { font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 800; margin-bottom: 4px; }
+        .page-sub { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+
+        /* STATUS BAR */
+        .status-bar {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+        .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--green-light); box-shadow: 0 0 8px var(--green-light); flex-shrink: 0; animation: blink 1.5s ease-in-out infinite; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+        /* AUCTION CARDS */
+        #auctions-list { display: flex; flex-direction: column; gap: 16px; }
+
+        .auction-card {
+            background: var(--card);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .auction-card.winning { border-color: var(--green-light); background: rgba(74,222,128,0.05); }
+        .auction-card.outbid { border-color: var(--red); background: rgba(239,68,68,0.05); }
+        .auction-card.expired { opacity: 0.5; pointer-events: none; }
+
+        .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+        .route { flex: 1; }
+        .route-label { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+        .route-value { font-size: 15px; font-weight: 600; }
+        .route-arrow { color: var(--yellow); margin: 0 8px; font-size: 18px; }
+        .timer-badge {
+            background: rgba(255,204,0,0.12);
+            border: 1px solid rgba(255,204,0,0.3);
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-family: 'Syne', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--yellow);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .timer-badge.urgent { color: #f87171; border-color: rgba(248,113,113,0.4); background: rgba(248,113,113,0.08); }
+
+        .card-mid {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 12px 0;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            margin-bottom: 14px;
+        }
+        .current-bid-wrap { flex: 1; }
+        .current-bid-label { font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+        .current-bid-value {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--green-light);
+            line-height: 1;
+        }
+        .current-bid-value.no-bids { color: var(--muted); font-size: 1.2rem; }
+        .bid-status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .badge-winning { background: rgba(74,222,128,0.15); color: var(--green-light); }
+        .badge-outbid { background: rgba(239,68,68,0.15); color: #f87171; }
+        .badge-none { background: rgba(148,163,184,0.1); color: var(--muted); }
+
+        /* BID INPUT */
+        .bid-row { display: flex; gap: 10px; align-items: center; }
+        .bid-input-wrap { position: relative; flex: 1; }
+        .bid-currency { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-weight: 600; }
+        .bid-input {
+            width: 100%;
+            padding: 11px 12px 11px 28px;
+            background: var(--bg);
+            border: 1.5px solid var(--border);
+            color: var(--text);
+            border-radius: 6px;
+            font-size: 15px;
+            font-family: 'DM Sans', sans-serif;
+            transition: border-color 0.2s;
+        }
+        .bid-input:focus { outline: none; border-color: var(--yellow); }
+        .bid-btn {
+            padding: 11px 20px;
+            background: var(--yellow);
+            color: #0b1329;
+            border: none;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        .bid-btn:hover { background: var(--yellow-dark); color: #fff; }
+        .bid-btn:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+
+        .bid-hint { font-size: 12px; color: var(--muted); margin-top: 7px; }
+
+        /* Empty / Loading states */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--muted);
+        }
+        .empty-state .icon { font-size: 2.5rem; margin-bottom: 12px; }
+        .empty-state p { font-size: 14px; }
+
+        .loading-state { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 14px; }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
-    <header>
-        <div class="trip-details">
-            <h2><a href="index.html" class="home-link">← Home</a> 🛺 Active Ride Request</h2>
-            <div class="trip-route">Route: <strong id="route-start">Nalgaria</strong> ➔ <strong id="route-end">Agartala</strong> (Reverse Bidding Mode)</div>
-        </div>
-        <div class="auction-info">
-            <div id="global-status" class="live-badge">Drivers Bidding</div>
-            <div class="global-price">Lowest Offer: ₹<span id="master-price">350</span></div>
-            <div class="global-timer">⏱️ <span id="master-timer">45</span>s</div>
-        </div>
-    </header>
+<div class="topbar">
+    <a href="index.html" class="logo">Auto <span>Rider</span></a>
+    <div class="driver-info">
+        <img id="driver-avatar" class="driver-avatar" src="https://via.placeholder.com/34" alt="Avatar">
+        <span class="driver-name" id="driver-name-label">Loading...</span>
+        <button class="logout-btn" onclick="signOut()">Sign Out</button>
+    </div>
+</div>
 
-    <div class="grid-container">
-        
-        <div class="user-square" id="card-Driver_Anand">
-            <div class="user-header">
-                <span class="user-name">🛺 Driver Anand</span>
-                <span class="user-badge" id="badge-Driver_Anand">Waiting</span>
-            </div>
-            <div class="user-body">
-                <div class="control-panel">
-                    <div class="bid-input-wrap">
-                        <input type="number" id="input-Driver_Anand" min="100">
-                        <button onclick="submitGridBid('Driver_Anand')">Offer</button>
-                    </div>
-                    <div class="quick-actions">
-                        <button class="quick-btn" onclick="quickDrop('Driver_Anand', 10)">Drop ₹10</button>
-                        <button class="quick-btn" onclick="quickDrop('Driver_Anand', 25)">Drop ₹25</button>
-                    </div>
-                </div>
-                <div class="ticker-container"><div class="ticker-message" id="ticker-Driver_Anand"></div></div>
-            </div>
-        </div>
+<div class="main">
+    <div class="page-title">Ride Auctions</div>
+    <div class="page-sub">Place the lowest bid to win the ride. Timer is live — bid fast.</div>
 
-        <div class="user-square" id="card-Driver_Bikram">
-            <div class="user-header">
-                <span class="user-name">🛺 Driver Bikram</span>
-                <span class="user-badge" id="badge-Driver_Bikram">Waiting</span>
-            </div>
-            <div class="user-body">
-                <div class="control-panel">
-                    <div class="bid-input-wrap">
-                        <input type="number" id="input-Driver_Bikram" min="100">
-                        <button onclick="submitGridBid('Driver_Bikram')">Offer</button>
-                    </div>
-                    <div class="quick-actions">
-                        <button class="quick-btn" onclick="quickDrop('Driver_Bikram', 10)">Drop ₹10</button>
-                        <button class="quick-btn" onclick="quickDrop('Driver_Bikram', 25)">Drop ₹25</button>
-                    </div>
-                </div>
-                <div class="ticker-container"><div class="ticker-message" id="ticker-Driver_Bikram"></div></div>
-            </div>
-        </div>
-
-        <div class="user-square" id="card-Driver_Chandan">
-            <div class="user-header">
-                <span class="user-name">🛺 Driver Chandan</span>
-                <span class="user-badge" id="badge-Driver_Chandan">Waiting</span>
-            </div>
-            <div class="user-body">
-                <div class="control-panel">
-                    <div class="bid-input-wrap">
-                        <input type="number" id="input-Driver_Chandan" min="100">
-                        <button onclick="submitGridBid('Driver_Chandan')">Offer</button>
-                    </div>
-                    <div class="quick-actions">
-                        <button class="quick-btn" onclick="quickDrop('Driver_Chandan', 10)">Drop ₹10</button>
-                        <button class="quick-btn" onclick="quickDrop('Driver_Chandan', 25)">Drop ₹25</button>
-                    </div>
-                </div>
-                <div class="ticker-container"><div class="ticker-message" id="ticker-Driver_Chandan"></div></div>
-            </div>
-        </div>
-
-        <div class="user-square" id="card-Driver_Dipak">
-            <div class="user-header">
-                <span class="user-name">🛺 Driver Dipak</span>
-                <span class="user-badge" id="badge-Driver_Dipak">Waiting</span>
-            </div>
-            <div class="user-body">
-                <div class="control-panel">
-                    <div class="bid-input-wrap">
-                        <input type="number" id="input-Driver_Dipak" min="100">
-                        <button onclick="submitGridBid('Driver_Dipak')">Offer</button>
-                    </div>
-                    <div class="quick-actions">
-                        <button class="quick-btn" onclick="quickDrop('Driver_Dipak', 10)">Drop ₹10</button>
-                        <button class="quick-btn" onclick="quickDrop('Driver_Dipak', 25)">Drop ₹25</button>
-                    </div>
-                </div>
-                <div class="ticker-container"><div class="ticker-message" id="ticker-Driver_Dipak"></div></div>
-            </div>
-        </div>
-
+    <div class="status-bar">
+        <div class="dot"></div>
+        <span>Listening for new ride requests in real time</span>
     </div>
 
+    <div id="auctions-list">
+        <div class="loading-state">Loading active auctions...</div>
+    </div>
+</div>
+
 <script>
-    const drivers = ['Driver_Anand', 'Driver_Bikram', 'Driver_Chandan', 'Driver_Dipak'];
-    
-    let currentLowestBid = 350; 
-    let currentLowestBidder = "None";
-    let timeLeft = 45;
-    let auctionActive = true;
-    let timerInterval = null;
+    const SUPABASE_URL = "https://tzdocibsjgrubpxynzar.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_1gz2f5xkD3ygS2a3hJSSVQ_BIX8RxNB";
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const localBus = new BroadcastChannel('auto_ride_bidding_bus');
+    let currentDriverId = null;
+    let currentDriverName = '';
+    // Track per-auction: { myBid, timerInterval }
+    const auctionState = {};
 
-    window.onload = function() {
-        updateAllInputs();
-        startMasterCountdown();
-        updateTickers("System initialized. Maximum base fare ceiling set at ₹350.");
-    };
-
-    localBus.onmessage = function(event) {
-        if (event.data.type === 'PROCESS_REVERSE_BID') {
-            executeGlobalStateUpdate(event.data.user, event.data.amount);
-        } else if (event.data.type === 'NEW_RIDE_REQUEST') {
-            document.getElementById('route-start').textContent = event.data.pickup;
-            document.getElementById('route-end').textContent = event.data.destination;
-            updateTickers(`New Request: ${event.data.pickup} to ${event.data.destination}!`);
-        }
-    };
-
-    function dispatchBid(user, amount) {
-        if (amount >= currentLowestBid) {
-            console.warn(`Race condition guarded: ${user} drop rejected.`);
+    // ── AUTH GATE ──
+    _supabase.auth.onAuthStateChange(async (event, session) => {
+        if (!session) {
+            window.location.href = 'auth.html';
             return;
         }
+        currentDriverId = session.user.id;
+        await loadDriverProfile();
+        await loadAuctions();
+        subscribeToNewAuctions();
+    });
 
-        executeGlobalStateUpdate(user, amount);
-        
-        localBus.postMessage({
-            type: 'PROCESS_REVERSE_BID',
-            user: user,
-            amount: amount
-        });
+    async function loadDriverProfile() {
+        const { data } = await _supabase
+            .from('profiles')
+            .select('full_name, avatar_url')
+            .eq('id', currentDriverId)
+            .maybeSingle();
+        if (data) {
+            currentDriverName = data.full_name || 'Driver';
+            document.getElementById('driver-name-label').innerText = currentDriverName;
+            if (data.avatar_url) document.getElementById('driver-avatar').src = data.avatar_url;
+        }
     }
 
-    function submitGridBid(user) {
-        if (!auctionActive) return;
-        
-        const inputField = document.getElementById(`input-${user}`);
-        const amount = parseInt(inputField.value);
+    // ── LOAD ALL ACTIVE AUCTIONS ──
+    async function loadAuctions() {
+        const { data, error } = await _supabase
+            .from('auctions')
+            .select('*')
+            .eq('status', 'active')
+            .gt('expires_at', new Date().toISOString())
+            .order('expires_at', { ascending: true });
 
-        if (isNaN(amount) || amount >= currentLowestBid) {
-            alert(`Rejected: ${user.replace('_',' ')}'s offer must be lower than ₹${currentLowestBid}.`);
+        const list = document.getElementById('auctions-list');
+        if (error || !data || data.length === 0) {
+            list.innerHTML = `<div class="empty-state"><div class="icon">🛺</div><p>No active ride requests right now.<br>New auctions appear here automatically.</p></div>`;
             return;
         }
-        
-        if (amount < 100) {
-            alert(`Rejected: Offer is below the cost floor threshold (₹100).`);
-            return;
-        }
-
-        dispatchBid(user, amount);
+        list.innerHTML = '';
+        data.forEach(auction => renderAuctionCard(auction));
     }
 
-    function quickDrop(user, deduction) {
-        if (!auctionActive) return;
-        const targetOffer = currentLowestBid - deduction;
-        if (targetOffer < 100) {
-            alert("Minimum price margin boundary reached (₹100). Cannot drop further.");
-            return;
-        }
-        dispatchBid(user, targetOffer);
+    // ── REALTIME: NEW AUCTIONS ──
+    function subscribeToNewAuctions() {
+        _supabase.channel('auctions-new')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'auctions' }, (payload) => {
+                const list = document.getElementById('auctions-list');
+                // Remove empty state if present
+                const empty = list.querySelector('.empty-state, .loading-state');
+                if (empty) empty.remove();
+                renderAuctionCard(payload.new);
+                subscribeToAuctionUpdates(payload.new.id);
+            })
+            .subscribe();
+
+        // Also subscribe to updates for already-loaded auctions
+        // Done per-card in renderAuctionCard
     }
 
-    function executeGlobalStateUpdate(user, amount) {
-        if (amount < currentLowestBid && auctionActive) {
-            currentLowestBid = amount;
-            currentLowestBidder = user;
+    // ── RENDER ONE AUCTION CARD ──
+    function renderAuctionCard(auction) {
+        const id = auction.id;
 
-            if (timeLeft < 8) timeLeft = 10;
+        // Don't re-render if card already exists
+        if (document.getElementById(`card-${id}`)) return;
 
-            document.getElementById('master-price').textContent = currentLowestBid;
-            document.getElementById('master-timer').textContent = timeLeft;
+        const card = document.createElement('div');
+        card.className = 'auction-card';
+        card.id = `card-${id}`;
 
-            drivers.forEach(d => {
-                const card = document.getElementById(`card-${d}`);
-                const statusBadge = document.getElementById(`badge-${d}`);
-                
-                if (d === user) {
-                    card.classList.add('lowest-bidder-card');
-                    statusBadge.textContent = "Lowest Fare";
-                    statusBadge.style.color = "var(--success)";
-                } else {
-                    card.classList.remove('lowest-bidder-card');
-                    statusBadge.textContent = "Higher";
-                    statusBadge.style.color = "var(--danger)";
-                }
-            });
+        const hasBid = auction.current_lowest_bid && auction.current_lowest_bid < 999999;
+        const amWinning = auction.lowest_bidder_id === currentDriverId;
 
-            updateTickers(`🚕 ${user.replace('_', ' ')} slashed the active fare to ₹${amount}`, true);
-            updateAllInputs();
-        }
+        card.innerHTML = `
+            <div class="card-top">
+                <div class="route">
+                    <div class="route-label">Route</div>
+                    <div style="display:flex; align-items:center; flex-wrap:wrap; gap:4px;">
+                        <span class="route-value">${escHtml(auction.pickup || 'Unknown')}</span>
+                        <span class="route-arrow">→</span>
+                        <span class="route-value">${escHtml(auction.destination || 'Unknown')}</span>
+                    </div>
+                </div>
+                <div class="timer-badge" id="timer-${id}">60s</div>
+            </div>
+            <div class="card-mid">
+                <div class="current-bid-wrap">
+                    <div class="current-bid-label">Current Lowest Bid</div>
+                    <div class="current-bid-value ${hasBid ? '' : 'no-bids'}" id="bid-val-${id}">
+                        ${hasBid ? '₹' + Number(auction.current_lowest_bid).toFixed(0) : 'No bids yet'}
+                    </div>
+                </div>
+                <div class="bid-status-badge ${amWinning ? 'badge-winning' : 'badge-none'}" id="status-badge-${id}">
+                    ${amWinning ? '🏆 Winning' : 'Not bid'}
+                </div>
+            </div>
+            <div class="bid-row">
+                <div class="bid-input-wrap">
+                    <span class="bid-currency">₹</span>
+                    <input type="number" class="bid-input" id="bid-input-${id}" placeholder="${hasBid ? Number(auction.current_lowest_bid).toFixed(0) - 1 : '80'}" min="1">
+                </div>
+                <button class="bid-btn" id="bid-btn-${id}" onclick="submitBid('${id}')">Bid</button>
+            </div>
+            <div class="bid-hint" id="bid-hint-${id}">Enter a bid lower than the current offer to win.</div>
+        `;
+
+        document.getElementById('auctions-list').prepend(card);
+        startCardTimer(id, auction.expires_at);
+        subscribeToAuctionUpdates(id);
     }
 
-    function updateAllInputs() {
-        drivers.forEach(d => {
-            const field = document.getElementById(`input-${d}`);
-            const nextSuggestedBid = currentLowestBid - 5;
-            field.value = nextSuggestedBid >= 100 ? nextSuggestedBid : 100;
-        });
-    }
+    // ── PER-CARD TIMER (DB-anchored) ──
+    function startCardTimer(id, expiresAt) {
+        const expiry = new Date(expiresAt).getTime();
+        auctionState[id] = auctionState[id] || {};
+        auctionState[id].timerInterval = setInterval(() => {
+            const remaining = Math.max(0, Math.floor((expiry - Date.now()) / 1000));
+            const timerEl = document.getElementById(`timer-${id}`);
+            const btnEl = document.getElementById(`bid-btn-${id}`);
+            const inputEl = document.getElementById(`bid-input-${id}`);
+            if (!timerEl) { clearInterval(auctionState[id].timerInterval); return; }
 
-    function updateTickers(message, isHighlight = false) {
-        drivers.forEach(d => {
-            const ticker = document.getElementById(`ticker-${d}`);
-            ticker.textContent = message;
-            if (isHighlight) {
-                ticker.classList.add('highlight');
-            } else {
-                ticker.classList.remove('highlight');
-            }
-        });
-    }
+            timerEl.innerText = remaining + 's';
+            if (remaining <= 10) timerEl.className = 'timer-badge urgent';
 
-    function startMasterCountdown() {
-        timerInterval = setInterval(() => {
-            if (timeLeft > 0) {
-                timeLeft--;
-                document.getElementById('master-timer').textContent = timeLeft;
-            } else {
-                finalizeAuction();
+            if (remaining <= 0) {
+                clearInterval(auctionState[id].timerInterval);
+                closeAuctionCard(id);
+                if (btnEl) { btnEl.disabled = true; btnEl.innerText = 'Closed'; }
+                if (inputEl) inputEl.disabled = true;
+                markAuctionClosed(id);
             }
         }, 1000);
     }
 
-    function finalizeAuction() {
-        auctionActive = false;
-        clearInterval(timerInterval);
+    // ── REALTIME: BID UPDATES ON A SPECIFIC AUCTION ──
+    function subscribeToAuctionUpdates(id) {
+        _supabase.channel(`auction-driver-${id}`)
+            .on('postgres_changes', {
+                event: 'UPDATE', schema: 'public', table: 'auctions', filter: `id=eq.${id}`
+            }, (payload) => {
+                updateCardBidState(id, payload.new);
+            })
+            .subscribe();
+    }
 
-        const globalStatus = document.getElementById('global-status');
-        
-        if (currentLowestBidder === "None") {
-            globalStatus.textContent = "EXPIRED";
-            globalStatus.className = "live-badge ended";
-            globalStatus.style.borderColor = "var(--danger)";
-            globalStatus.style.color = "var(--danger)";
-            globalStatus.style.backgroundColor = "rgba(239, 68, 68, 0.2)";
-        } else {
-            globalStatus.textContent = "BOOKED";
-            globalStatus.className = "live-badge ended";
-            globalStatus.style.color = "var(--success)";
-            globalStatus.style.backgroundColor = "rgba(16, 185, 129, 0.2)";
+    function updateCardBidState(id, auction) {
+        const bidValEl = document.getElementById(`bid-val-${id}`);
+        const statusEl = document.getElementById(`status-badge-${id}`);
+        const hintEl = document.getElementById(`bid-hint-${id}`);
+        const inputEl = document.getElementById(`bid-input-${id}`);
+        const card = document.getElementById(`card-${id}`);
+        if (!bidValEl) return;
+
+        const hasBid = auction.current_lowest_bid < 999999;
+        const amWinning = auction.lowest_bidder_id === currentDriverId;
+        const amOutbid = !amWinning && auctionState[id] && auctionState[id].hasBid;
+
+        bidValEl.className = `current-bid-value ${hasBid ? '' : 'no-bids'}`;
+        bidValEl.innerText = hasBid ? '₹' + Number(auction.current_lowest_bid).toFixed(0) : 'No bids yet';
+
+        if (amWinning) {
+            statusEl.className = 'bid-status-badge badge-winning';
+            statusEl.innerText = '🏆 Winning';
+            card.className = 'auction-card winning';
+            if (hintEl) hintEl.innerText = "You have the lowest bid! Hold tight.";
+        } else if (amOutbid) {
+            statusEl.className = 'bid-status-badge badge-outbid';
+            statusEl.innerText = '⚡ Outbid';
+            card.className = 'auction-card outbid';
+            if (hintEl) hintEl.innerText = "You've been outbid! Enter a lower amount.";
         }
 
-        drivers.forEach(d => {
-            const statusBadge = document.getElementById(`badge-${d}`);
-            if (currentLowestBidder === "None") {
-                statusBadge.textContent = "No Offers";
-                statusBadge.style.color = "var(--text-muted)";
-            } else if (d === currentLowestBidder) {
-                statusBadge.textContent = "Assigned!";
-                statusBadge.style.color = "var(--success)";
-            } else {
-                statusBadge.textContent = "Rejected";
-                statusBadge.style.color = "var(--text-muted)";
-                document.getElementById(`card-${d}`).classList.remove('lowest-bidder-card');
+        // Update placeholder to suggest a lower value
+        if (hasBid && inputEl) {
+            inputEl.placeholder = Math.max(1, Number(auction.current_lowest_bid) - 1).toString();
+        }
+
+        if (auction.status === 'closed') {
+            closeAuctionCard(id);
+            if (amWinning) {
+                // Redirect winner to trip page
+                const params = new URLSearchParams({
+                    pickup: auction.pickup || '',
+                    destination: auction.destination || '',
+                    fare: Number(auction.current_lowest_bid).toFixed(0),
+                    auction_id: id
+                });
+                window.location.href = `trip.html?${params.toString()}`;
             }
-        });
-
-        document.querySelectorAll(`input, button`).forEach(el => el.disabled = true);
-
-        const winnerReadable = currentLowestBidder !== "None" ? currentLowestBidder.replace('_', ' ') : "No Driver";
-        if (currentLowestBidder === "None") {
-            updateTickers(`❌ Auction Closed: No responses within the matching timeline.`, false);
-        } else {
-            updateTickers(`🏆 Match Confirmed: Assigned to ${winnerReadable} at ₹${currentLowestBid}!`, true);
         }
+    }
+
+    function closeAuctionCard(id) {
+        const card = document.getElementById(`card-${id}`);
+        if (card) card.classList.add('expired');
+        if (auctionState[id] && auctionState[id].timerInterval) {
+            clearInterval(auctionState[id].timerInterval);
+        }
+    }
+
+    // ── MARK CLOSED IN DB (called when client timer hits 0) ──
+    async function markAuctionClosed(id) {
+        await _supabase.from('auctions')
+            .update({ status: 'closed' })
+            .eq('id', id)
+            .eq('status', 'active'); // Only update if still active (prevent race)
+
+        // If we won, redirect
+        const { data } = await _supabase.from('auctions').select('*').eq('id', id).single();
+        if (data && data.lowest_bidder_id === currentDriverId) {
+            const params = new URLSearchParams({
+                pickup: data.pickup || '',
+                destination: data.destination || '',
+                fare: Number(data.current_lowest_bid).toFixed(0),
+                auction_id: id
+            });
+            window.location.href = `trip.html?${params.toString()}`;
+        }
+    }
+
+    // ── SUBMIT BID ──
+    async function submitBid(auctionId) {
+        const inputEl = document.getElementById(`bid-input-${auctionId}`);
+        const hintEl = document.getElementById(`bid-hint-${auctionId}`);
+        const bidAmount = parseFloat(inputEl.value);
+
+        if (isNaN(bidAmount) || bidAmount <= 0) {
+            if (hintEl) hintEl.innerText = '⚠ Please enter a valid bid amount.';
+            return;
+        }
+
+        // Fetch current state to validate client-side before DB call
+        const { data: current } = await _supabase
+            .from('auctions').select('current_lowest_bid, expires_at, status').eq('id', auctionId).single();
+
+        if (!current || current.status !== 'active') {
+            if (hintEl) hintEl.innerText = '⚠ This auction has already closed.';
+            return;
+        }
+        if (new Date(current.expires_at) < new Date()) {
+            if (hintEl) hintEl.innerText = '⚠ This auction has expired.';
+            return;
+        }
+        if (bidAmount >= current.current_lowest_bid) {
+            if (hintEl) hintEl.innerText = `⚠ Your bid must be lower than ₹${Number(current.current_lowest_bid).toFixed(0)}.`;
+            return;
+        }
+
+        const { error } = await _supabase.from('auctions').update({
+            current_lowest_bid: bidAmount,
+            lowest_bidder_id: currentDriverId
+        }).eq('id', auctionId);
+
+        if (error) {
+            if (hintEl) hintEl.innerText = '⚠ Bid rejected — a lower bid may already exist.';
+        } else {
+            auctionState[auctionId] = auctionState[auctionId] || {};
+            auctionState[auctionId].hasBid = true;
+            inputEl.value = '';
+            if (hintEl) hintEl.innerText = '✓ Bid placed! You are currently winning.';
+        }
+    }
+
+    async function signOut() {
+        await _supabase.auth.signOut();
+        window.location.href = 'auth.html';
+    }
+
+    function escHtml(str) {
+        return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
 </script>
 </body>
